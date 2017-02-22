@@ -1,0 +1,91 @@
+IO流（输入流、输出流）
+
+字节流、字符流
+
+1、字节流
+
+1）InputStream、OutputStream抽象父类，由他们派生接口实现文件流读写操作
+InputStream抽象了应用程序读数据的方式
+OutputStream抽象了应用程序写数据的方式
+
+2）EOF = end 或者读到-1就表示读到结尾了
+
+3）输入流基本方法
+int b = in.read(); 读取一个字节无符号位填充到int低8位，-1是EOF
+in.read(byte[] buf); 读取数据直接填充字节数组buf中
+in.read(byte[] buf, int start, int size); 从start位置开始读取数据，读size长度的字节到字节数组中,返回的是实际读取到的字节长度
+
+4）输出流基本方法
+out.write(int b);写出一个byte字节到流，b的低8位
+out.write(byte[] buf);将buf字节数组都写入到流
+out.write(byte[] buf, int start, int size);字节数组从start位置开始写size长度的字节到流
+
+5）FileInputStream——》具体实现了在文件上读取数据
+
+6）FileOutputStream——》实现了向文件中写出byte数据的方法
+
+7）DataOutputStream/DataInputStream
+对普通“流”功能的扩展，可以更加方便地读取int，long，字符等类型数据
+
+DataOutputStream
+
+    writeInt()/writeDouble()/writeUTF()
+
+8）BufferedInputStream & BufferedOutputStream
+这两个流类为IO提供了带缓冲区的操作，一般打开文件进行写入或读取操作时，
+都会加上缓冲，这种流模式提高了IO的性能,（主要是输入输出）
+
+从应用程序中把数据放入文件，相当于将一杯水倒入到另一杯水中
+FileOutputStream——》write()方法相当于一滴一滴地把水“转移”过去
+DataOutputStream——》writeXXX()方法会方便一些，相当于一瓢一瓢的“转移”
+BufferedOutputStream——》writeXXX()方法更加方便，相当于先一瓢一瓢将水倒入杯中（缓冲区），然后再从一个杯子倒入另一个杯子
+
+2、字符流
+1）编码问题
+2）认识文本和文本文件
+
+java中的文本（char）是16位无符号整数，是字符的unicode编码（双字节编码）
+文件是byte byte byte ...的数据序列，
+文本文件是文本（char）序列按照某种编码方案（UTF-8，UTF-16be，gbk）序列化为byte的存储结果
+
+3）字符流（Reader，Writer）
+操作的是文本文件
+字符的处理，一次处理一个字符
+字符的底层仍然是基本的字节序列
+
+4）字符流的基本实现
+InputStreamReader 完成byte流解析为char流，按照编码进行解析
+
+OutputStreamWriter 提供char流到byte流，按照编码进行解析
+
+5）字符流之文件读写流
+FileReader/FileWriter
+
+字符流的过滤器
+BufferedReader  ——》readLine 一次读一行
+BufferedWriter/PrintWriter  ——》 writeLine 一次写一行
+
+3、对象的序列化和反序列化
+1）对象序列化，就是将Object对象转换成byte序列;反之则叫对象的反序列化.
+2）序列化流（ObjectOutputStream）,是过滤流——》WriteObject
+    反序列化流（ObjectInputStream），——》ReadObject
+
+3）序列化接口（Serializable）
+对象必须实现序列化接口，才能进行序列化，否则将会出现异常
+这个接口，没有任何方法，只是一个标准
+
+4）transient关键字
+被transient关键字修饰的元素不会进行jvm默认的序列化，但是可以自己完成序列化
+
+private void writeObject(ObjectOutputStream s)
+            throws IOException{}
+
+private void readObject(ObjectInputStream s)
+            throws IOException, ClassNotFoundException {}
+
+5）序列化中  子类和父类构造函数的调用问题
+
+当一个子类对象进行反序列化操作时，如果其父类没有实现序列化接口，
+则其父类的构造函数会被显示地调用，如果实现了序列化接口，那么
+其父类的构造函数则会被隐式地调用，我们无法看到
+
